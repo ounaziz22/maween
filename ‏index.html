@@ -1,0 +1,1321 @@
+<code5.html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مستشفيات الصين</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .filter-section {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .filter-group {
+            margin-bottom: 15px;
+        }
+        
+        .filter-group h3 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        
+        .filter-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .filter-tag {
+            padding: 8px 15px;
+            background-color: #e0e0e0;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .filter-tag:hover {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .filter-tag.active {
+            background-color: #2980b9;
+            color: white;
+        }
+        
+        .hospital {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .hospital-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+        
+        .hospital-name {
+            flex: 1;
+        }
+        
+        .hospital-name h2 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 1.5rem;
+        }
+        
+        .hospital-name h3 {
+            margin: 5px 0 0 0;
+            color: #7f8c8d;
+            font-size: 1.2rem;
+            font-weight: normal;
+        }
+        
+        .hospital-rating {
+            background-color: #f39c12;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .hospital-details {
+            display: flex;
+            margin-bottom: 15px;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .detail-box {
+            background-color: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 8px;
+            min-width: 120px;
+        }
+        
+        .detail-box .label {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+        
+        .detail-box .value {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .specializations {
+            margin-bottom: 15px;
+        }
+        
+        .specializations h4 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        
+        .spec-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .spec-tag {
+            background-color: #e1f5fe;
+            color: #0288d1;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+        }
+        
+        .doctors h4 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        
+        .doctor {
+            margin-bottom: 8px;
+        }
+        
+        .doctor strong {
+            color: #2980b9;
+        }
+        
+        .price-tag {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        .price-high {
+            background-color: #ffcdd2;
+            color: #c62828;
+        }
+        
+        .price-medium-high {
+            background-color: #ffcc80;
+            color: #e65100;
+        }
+        
+        .price-medium {
+            background-color: #c8e6c9;
+            color: #2e7d32;
+        }
+        
+        .price-low {
+            background-color: #bbdefb;
+            color: #1565c0;
+        }
+        
+        .hospital-footer {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            font-size: 0.85rem;
+            color: #7f8c8d;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const hospitals = document.querySelectorAll('.hospital');
+            const cityFilters = document.querySelectorAll('.filter-group:nth-child(2) .filter-tag');
+            const specFilters = document.querySelectorAll('.filter-group:nth-child(1) .filter-tag');
+            const priceFilters = document.querySelectorAll('.filter-group:nth-child(3) .filter-tag');
+            
+            // Handle filter clicks
+            function setupFilters(filters) {
+                filters.forEach(filter => {
+                    filter.addEventListener('click', function() {
+                        this.classList.toggle('active');
+                        applyFilters();
+                    });
+                });
+            }
+            
+            setupFilters(cityFilters);
+            setupFilters(specFilters);
+            setupFilters(priceFilters);
+            
+            function applyFilters() {
+                const activeCities = Array.from(document.querySelectorAll('.filter-group:nth-child(2) .filter-tag.active')).map(tag => tag.textContent.trim());
+                const activeSpecs = Array.from(document.querySelectorAll('.filter-group:nth-child(1) .filter-tag.active')).map(tag => tag.textContent.trim());
+                const activePrices = Array.from(document.querySelectorAll('.filter-group:nth-child(3) .filter-tag.active')).map(tag => tag.textContent.trim());
+                
+                hospitals.forEach(hospital => {
+                    const city = hospital.querySelector('.detail-box:first-child .value').textContent.trim();
+                    const specs = Array.from(hospital.querySelectorAll('.spec-tag')).map(tag => tag.textContent.trim());
+                    const price = hospital.querySelector('.detail-box:last-child .value').textContent.trim();
+                    
+                    const cityMatch = activeCities.length === 0 || activeCities.includes(city);
+                    const specMatch = activeSpecs.length === 0 || activeSpecs.some(spec => specs.includes(spec));
+                    const priceMatch = activePrices.length === 0 || activePrices.includes(price);
+                    
+                    if (cityMatch && specMatch && priceMatch) {
+                        hospital.style.display = 'flex';
+                    } else {
+                        hospital.style.display = 'none';
+                    }
+                });
+            }
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>أفضل المستشفيات في الصين</h1>
+        
+        <div class="filter-section">
+            <div class="filter-group">
+                <h3>التخصصات الطبية</h3>
+                <div class="filter-tags">
+                    <div class="filter-tag">باطنية</div>
+                    <div class="filter-tag">جراحة</div>
+                    <div class="filter-tag">أعصاب</div>
+                    <div class="filter-tag">قلب</div>
+                    <div class="filter-tag">عظام</div>
+                    <div class="filter-tag">أطفال</div>
+                    <div class="filter-tag">أورام</div>
+                    <div class="filter-tag">زراعة أعضاء</div>
+                    <div class="filter-tag">روماتيزم</div>
+                    <div class="filter-tag">جلدية</div>
+                </div>
+            </div>
+            
+            <div class="filter-group">
+                <h3>المدن</h3>
+                <div class="filter-tags">
+                    <div class="filter-tag">بكين</div>
+                    <div class="filter-tag">شنغهاي</div>
+                    <div class="filter-tag">قوانغتشو</div>
+                    <div class="filter-tag">تشنغدو</div>
+                    <div class="filter-tag">تشانغشا</div>
+                    <div class="filter-tag">هانغتشو</div>
+                </div>
+            </div>
+            
+            <div class="filter-group">
+                <h3>مستوى الأسعار</h3>
+                <div class="filter-tags">
+                    <div class="filter-tag">غالي جداً</div>
+                    <div class="filter-tag">غالي</div>
+                    <div class="filter-tag">متوسط بلس</div>
+                    <div class="filter-tag">متوسط</div>
+                    <div class="filter-tag">عادي</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- مستشفى 1 -->
+        <div class="hospital">
+            <div class="hospital-header">
+                <div class="hospital-name">
+                    <h2>Beijing International Hospital</h2>
+                    <h3>مستشفى بكين الدولي</h3>
+                </div>
+                <div class="hospital-rating">8.3</div>
+            </div>
+            
+            <div class="hospital-details">
+                <div class="detail-box">
+                    <div class="label">المدينة</div>
+                    <div class="value">بكين</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">سنة التأسيس</div>
+                    <div class="value">1985</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">مستوى السعر</div>
+                    <div class="value">غالي</div>
+                </div>
+            </div>
+            
+            <div class="specializations">
+                <h4>التخصصات الرئيسية</h4>
+                <div class="spec-tags">
+                    <div class="spec-tag">باطنية</div>
+                    <div class="spec-tag">أعصاب</div>
+                    <div class="spec-tag">جراحة</div>
+                </div>
+            </div>
+            
+            <div class="price-tag price-high">السعر: غالي</div>
+            
+            <div class="doctors">
+                <h4>أبرز الأطباء</h4>
+                <div class="doctor"><strong>Prof. Zhang Wei</strong> - أخصائي باطني، خبرة 22 سنة</div>
+                <div class="doctor"><strong>Dr. Li Hua</strong> - جراحة عامة، خبرة 18 سنة</div>
+            </div>
+            
+            <div class="hospital-footer">
+                المصدر: تصنيف المستشفيات الوطنية 2023
+            </div>
+        </div>
+
+        <!-- مستشفى 2 -->
+        <div class="hospital">
+            <div class="hospital-header">
+                <div class="hospital-name">
+                    <h2>Peking University People’s Hospital Organ Center</h2>
+                    <h3>مركز زراعة الأعضاء بمستشفى الشعب - جامعة بكين</h3>
+                </div>
+                <div class="hospital-rating">9.0</div>
+            </div>
+            
+            <div class="hospital-details">
+                <div class="detail-box">
+                    <div class="label">المدينة</div>
+                    <div class="value">بكين</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">سنة التأسيس</div>
+                    <div class="value">1898</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">مستوى السعر</div>
+                    <div class="value">غالي جداً</div>
+                </div>
+            </div>
+            
+            <div class="specializations">
+                <h4>التخصصات الرئيسية</h4>
+                <div class="spec-tags">
+                    <div class="spec-tag">زراعة أعضاء</div>
+                    <div class="spec-tag">روماتيزم</div>
+                </div>
+            </div>
+            
+            <div class="price-tag price-high">السعر: غالي جداً</div>
+            
+            <div class="doctors">
+                <h4>أبرز الأطباء</h4>
+                <div class="doctor"><strong>Prof. Ji‑ye Zhu</strong> - اختصاص زرع أعضاء، خبرة أكثر من 20 سنة، مشارك في سياسات WHO</div>
+                <div class="doctor"><strong>Prof. Ma Lulin</strong> - أجرى أكثر من 1200 عملية زرع كلى، خبرة 20 سنة</div>
+            </div>
+            
+            <div class="hospital-footer">
+                المصدر: مركز الزراعة PU
+            </div>
+        </div>
+
+        <!-- مستشفى 3 -->
+        <div class="hospital">
+            <div class="hospital-header">
+                <div class="hospital-name">
+                    <h2>West China Hospital</h2>
+                    <h3>مستشفى غرب الصين</h3>
+                </div>
+                <div class="hospital-rating">8.9</div>
+            </div>
+            
+            <div class="hospital-details">
+                <div class="detail-box">
+                    <div class="label">المدينة</div>
+                    <div class="value">تشنغدو</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">سنة التأسيس</div>
+                    <div class="value">1892</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">مستوى السعر</div>
+                    <div class="value">متوسط بلس</div>
+                </div>
+            </div>
+            
+            <div class="specializations">
+                <h4>التخصصات الرئيسية</h4>
+                <div class="spec-tags">
+                    <div class="spec-tag">باطنية</div>
+                    <div class="spec-tag">عظام</div>
+                    <div class="spec-tag">أعصاب</div>
+                </div>
+            </div>
+            
+            <div class="price-tag price-medium-high">السعر: متوسط بلس</div>
+            
+            <div class="doctors">
+                <h4>أبرز الأطباء</h4>
+                <div class="doctor"><strong>Sheyu Li</strong> - أخصائي غدد صماء وسكر، خبرة أكثر من 15 سنة، باحث رئيسي</div>
+                <div class="doctor"><strong>Liang Zhou</strong> - جراح مسالك بولية، خبرة ≥15 سنة</div>
+            </div>
+            
+            <div class="hospital-footer">
+                المصدر: تصنيف فودان & دراسات زرع
+            </div>
+        </div>
+
+        <!-- مستشفى 4 -->
+        <div class="hospital">
+            <div class="hospital-header">
+                <div class="hospital-name">
+                    <h2>Second Xiangya Hospital</h2>
+                    <h3>مستشفى شيانغيا الثاني</h3>
+                </div>
+                <div class="hospital-rating">8.5</div>
+            </div>
+            
+            <div class="hospital-details">
+                <div class="detail-box">
+                    <div class="label">المدينة</div>
+                    <div class="value">تشانغشا</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">سنة التأسيس</div>
+                    <div class="value">1959</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">مستوى السعر</div>
+                    <div class="value">متوسط</div>
+                </div>
+            </div>
+            
+            <div class="specializations">
+                <h4>التخصصات الرئيسية</h4>
+                <div class="spec-tags">
+                    <div class="spec-tag">باطنية</div>
+                    <div class="spec-tag">زراعة أعضاء</div>
+                </div>
+            </div>
+            
+            <div class="price-tag price-medium">السعر: متوسط</div>
+            
+            <div class="doctors">
+                <h4>أبرز الأطباء</h4>
+                <div class="doctor"><strong>Peng Longkai</strong> - مدير قسم زراعة الكلى، خبرة أكثر من 20 سنة، أجرى >2000 عملية زرع</div>
+                <div class="doctor"><em>غير متوفر حالياً</em></div>
+            </div>
+            
+            <div class="hospital-footer">
+                المصدر: Xiangya Organ Center
+            </div>
+        </div>
+
+        <!-- مستشفى 5 -->
+        <div class="hospital">
+            <div class="hospital-header">
+                <div class="hospital-name">
+                    <h2>Ruijin Hospital</h2>
+                    <h3>مستشفى رويجين</div>
+                <div class="hospital-rating">8.7</div>
+            </div>
+            
+            <div class="hospital-details">
+                <div class="detail-box">
+                    <div class="label">المدينة</div>
+                    <div class="value">شنغهاي</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">سنة التأسيس</div>
+                    <div class="value">1907</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">مستوى السعر</div>
+                    <div class="value">متوسط بلس</div>
+                </div>
+            </div>
+            
+            <div class="specializations">
+                <h4>التخصصات الرئيسية</h4>
+                <div class="spec-tags">
+                    <div class="spec-tag">باطنية</div>
+                    <div class="spec-tag">أعصاب</div>
+                    <div class="spec-tag">روماتيزم</div>
+                </div>
+            </div>
+            
+            <div class="price-tag price-medium-high">السعر: متوسط بلس</div>
+            
+            <div class="doctors">
+                <h4>أبرز الأطباء</h4>
+                <div class="doctor"><strong>Prof. Min Zhu</strong> - أستاذ الطب الباطني، خبرة 25 سنة، باحث رئيسي في أمراض المناعة</div>
+                <div class="doctor"><strong>Dr. Wenhong Zhang</strong> - أخصائي الأعصاب، خبرة 20 سنة، معروف في علاج التصلب المتعدد</div>
+            </div>
+            
+            <div class="hospital-footer">
+                المصدر: تصنيف شنغهاي 2023
+            </div>
+        </div>
+
+        <!-- مستشفى 6 -->
+        <div class="hospital">
+            <div class="hospital-header">
+                <div class="hospital-name">
+                    <h2>Zhongshan Hospital</h2>
+                    <h3>مستشفى تشونغشان</h3>
+                </div>
+                <div class="hospital-rating">9.2</div>
+            </div>
+            
+            <div class="hospital-details">
+                <div class="detail-box">
+                    <div class="label">المدينة</div>
+                    <div class="value">شنغهاي</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">سنة التأسيس</div>
+                    <div class="value">1935</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">مستوى السعر</div>
+                    <div class="value">غالي جداً</div>
+                </div>
+            </div>
+            
+            <div class="specializations">
+                <h4>التخصصات الرئيسية</h4>
+                <div class="spec-tags">
+                    <div class="spec-tag">أورام</div>
+                    <div class="spec-tag">باطنية</div>
+                    <div class="spec-tag">جراحة</div>
+                </div>
+            </div>
+            
+            <div class="price-tag price-high">السعر: غالي جداً</div>
+            
+            <div class="doctors">
+                <h4>أبرز الأطباء</h4>
+                <div class="doctor"><strong>Prof. Li Yan</strong> - أستاذ أورام، خبرة 30 سنة، متخصص في علاج سرطان الكبد</div>
+                <div class="doctor"><strong>Dr. Huang Wei</strong> - جراح عام، خبرة 22 سنة، متخصص في جراحة القولون والمستقيم</div>
+            </div>
+            
+            <div class="hospital-footer">
+                المصدر: تصنيف شنغهاي 2023
+            </div>
+        </div>
+        
+        <!-- مستشفى 7 -->
+        <div class="hospital">
+            <div class="hospital-header">
+                <div class="hospital-name">
+                    <h2>Huashan Hospital</h2>
+                    <h3>مستشفى هواشان</h3>
+                </div>
+                <div class="hospital-rating">8.6</div>
+            </div>
+            
+            <div class="hospital-details">
+                <div class="detail-box">
+                    <div class="label">المدينة</div>
+                    <div class="value">شنغهاي</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">سنة التأسيس</div>
+                    <div class="value">1907</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">مستوى السعر</div>
+                    <div class="value">متوسط</div>
+                </div>
+            </div>
+            
+            <div class="specializations">
+                <h4>التخصصات الرئيسية</h4>
+                <div class="spec-tags">
+                    <div class="spec-tag">أعصاب</div>
+                    <div class="spec-tag">باطنية</div>
+                    <div class="spec-tag">روماتيزم</div>
+                </div>
+            </div>
+            
+            <div class="price-tag price-medium">السعر: متوسط</div>
+            
+            <div class="doctors">
+                <h4>أبرز الأطباء</h4>
+                <div class="doctor"><strong>Dr. Xuefeng Wang</strong> - أخصائي أعصاب، خبرة 18 سنة</div>
+                <div class="doctor"><strong>Dr. Ling Zhang</strong> - أخصائية روماتيزم، خبرة 15 سنة</div>
+            </div>
+            
+            <div class="hospital-footer">
+                المصدر: تصنيف شنغهاي 2023
+            </div>
+        </div>
+        
+        <!-- مستشفى 8 -->
+        <div class="hospital">
+            <div class="hospital-header">
+                <div class="hospital-name">
+                    <h2>West China Hospital</h2>
+                    <h3>مستشفى غرب الصين</h3>
+                </div>
+                <div class="hospital-rating">8.9</div>
+            </div>
+            
+            <div class="hospital-details">
+                <div class="detail-box">
+                    <div class="label">المدينة</div>
+                    <div class="value">تشنغدو</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">سنة التأسيس</div>
+                    <div class="value">1914</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">مستوى السعر</div>
+                    <div class="value">متوسط</div>
+                </div>
+            </div>
+            
+            <div class="specializations">
+                <h4>التخصصات الرئيسية</h4>
+                <div class="spec-tags">
+                    <div class="spec-tag">باطنية</div>
+                    <div class="spec-tag">عظام</div>
+                    <div class="spec-tag">أعصاب</div>
+                </div>
+            </div>
+            
+            <div class="price-tag price-medium">السعر: متوسط</div>
+            
+            <div class="doctors">
+                <h4>أبرز الأطباء</h4>
+                <div class="doctor"><strong>Sheyu Li</strong> - أخصائي غدد صماء وسكري، خبرة 15 سنة</div>
+                <div class="doctor"><strong>Liang Zhou</strong> - جراح مسالك بولية، خبرة 17 سنة</div>
+            </div>
+            
+            <div class="hospital-footer">
+                المصدر: تصنيف فودان 2022
+            </div>
+        </div>
+        
+        <!-- مستشفى 9 -->
+        <div class="hospital">
+            <div class="hospital-header">
+                <div class="hospital-name">
+                    <h2>Sun Yat-sen Cancer Center</h2>
+                    <h3>مركز سرطان صن يات سين</h3>
+                </div>
+                <div class="hospital-rating">8.1</div>
+            </div>
+            
+            <div class="hospital-details">
+                <div class="detail-box">
+                    <div class="label">المدينة</div>
+                    <div class="value">قوانغتشو</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">سنة التأسيس</div>
+                    <div class="value">1964</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">مستوى السعر</div>
+                    <div class="value">متوسط</div>
+                </div>
+            </div>
+            
+            <div class="specializations">
+                <h4>التخصصات الرئيسية</h4>
+                <div class="spec-tags">
+                    <div class="spec-tag">أورام</div>
+                    <div class="spec-tag">زراعة أعضاء</div>
+                </div>
+            </div>
+            
+            <div class="price-tag price-medium">السعر: متوسط</div>
+            
+            <div class="doctors">
+                <h4>أبرز الأطباء</h4>
+                <div class="doctor"><strong>Prof. Li Yan</strong> - أستاذ طب أورام، خبرة 22 سنة</div>
+                <div class="doctor"><strong>Prof. Wang Ming</strong> - أخصائي زرع أعضاء، خبرة 20 سنة</div>
+            </div>
+            
+            <div class="hospital-footer">
+                المصدر: موقع المركز الرسمي 2023
+            </div>
+        </div>
+        
+        <!-- مستشفى 10 -->
+        <div class="hospital">
+            <div class="hospital-header">
+                <div class="hospital-name">
+                    <h2>Guangzhou First Hospital</h2>
+                    <h3>مستشفى قوانغتشو الأول</h3>
+                </div>
+                <div class="hospital-rating">7.9</div>
+            </div>
+            
+            <div class="hospital-details">
+                <div class="detail-box">
+                    <div class="label">المدينة</div>
+                    <div class="value">قوانغتشو</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">سنة التأسيس</div>
+                    <div class="value">1955</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">مستوى السعر</div>
+                    <div class="value">متوسط</div>
+                </div>
+            </div>
+            
+            <div class="specializations">
+                <h4>التخصصات الرئيسية</h4>
+                <div class="spec-tags">
+                    <div class="spec-tag">باطنية</div>
+                    <div class="spec-tag">رئة</div>
+                </div>
+            </div>
+            
+            <div class="price-tag price-medium">السعر: متوسط</div>
+            
+            <div class="doctors">
+                <h4>أبرز الأطباء</h4>
+                <div class="doctor"><strong>Prof. Chen Xiaodong</strong> - أستاذ الطب الباطني، خبرة 18 سنة</div>
+                <div class="doctor"><strong>Prof. Zhang Hui</strong> - أخصائي أمراض الجهاز التنفسي، خبرة 16 سنة</div>
+            </div>
+            
+            <div class="hospital-footer">
+                المصدر: تصنيف فودان 2022
+            </div>
+        </div>
+        
+        <!-- مستشفى 11 -->
+        <div class="hospital">
+            <div class="hospital-header">
+                <div class="hospital-name">
+                    <h2>Peking University Third Hospital</h2>
+                    <h3>مستشفى جامعة بكين الثالث</h3>
+                </div>
+                <div class="hospital-rating">7.8</div>
+            </div>
+            
+            <div class="hospital-details">
+                <div class="detail-box">
+                    <div class="label">المدينة</div>
+                    <div class="value">بكين</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">سنة التأسيس</div>
+                    <div class="value">1958</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">مستوى السعر</div>
+                    <div class="value">غالي</div>
+                </div>
+            </div>
+            
+            <div class="specializations">
+                <h4>التخصصات الرئيسية</h4>
+                <div class="spec-tags">
+                    <div class="spec-tag">روماتيزم</div>
+                    <div class="spec-tag">باطنية</div>
+                </div>
+            </div>
+            
+            <div class="price-tag price-high">السعر: غالي</div>
+            
+            <div class="doctors">
+                <h4>أبرز الأطباء</h4>
+                <div class="doctor"><strong>Prof. Mu Rong</strong> - رئيسة قسم الروماتيزم، خبرة 22 سنة</div>
+                <div class="doctor"><strong>Prof. Qiao Jie</strong> - أستاذة الطب التناسلي، خبرة 25 سنة</div>
+            </div>
+            
+            <div class="hospital-footer">
+                المصدر: موقع PUTH الرسمي 2023
+            </div>
+        </div>
+        
+        <!-- مستشفى 12 -->
+        <div class="hospital">
+            <div class="hospital-header">
+                <div class="hospital-name">
+                    <h2>Ruijin Hospital</h2>
+                    <h3>مستشفى رويجين</h3>
+                </div>
+                <div class="hospital-rating">9.0</div>
+            </div>
+            
+            <div class="hospital-details">
+                <div class="detail-box">
+                    <div class="label">المدينة</div>
+                    <div class="value">شنغهاي</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">سنة التأسيس</div>
+                    <div class="value">1907</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">مستوى السعر</div>
+                    <div class="value">غالي جداً</div>
+                </div>
+            </div>
+            
+            <div class="specializations">
+                <h4>التخصصات الرئيسية</h4>
+                <div class="spec-tags">
+                    <div class="spec-tag">أورام</div>
+                    <div class="spec-tag">أعصاب</div>
+                    <div class="spec-tag">باطنية</div>
+                </div>
+            </div>
+            
+            <div class="price-tag price-high">السعر: غالي جداً</div>
+            
+            <div class="doctors">
+                <h4>أبرز الأطباء</h4>
+                <div class="doctor"><strong>Prof. Zhang Wei</strong> - أستاذ طب أعصاب، خبرة 20 سنة</div>
+                <div class="doctor"><strong>Dr. Li Mei</strong> - أخصائية أورام، خبرة 18 سنة</div>
+            </div>
+            
+            <div class="hospital-footer">
+                المصدر: تصنيف شنغهاي 2023
+            </div>
+        </div>
+        
+        <!-- مستشفى 13 -->
+        <div class="hospital">
+            <div class="hospital-header">
+                <div class="hospital-name">
+                    <h2>Zhongshan Hospital</h2>
+                    <h3>مستشفى جونغشان</h3>
+                </div>
+                <div class="hospital-rating">8.7</div>
+            </div>
+            
+            <div class="hospital-details">
+                <div class="detail-box">
+                    <div class="label">المدينة</div>
+                    <div class="value">شنغهاي</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">سنة التأسيس</div>
+                    <div class="value">1937</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">مستوى السعر</div>
+                    <div class="value">غالي جداً</div>
+                </div>
+            </div>
+            
+            <div class="specializations">
+                <h4>التخصصات الرئيسية</h4>
+                <div class="spec-tags">
+                    <div class="spec-tag">قلب</div>
+                    <div class="spec-tag">جراحة</div>
+                    <div class="spec-tag">باطنية</div>
+                </div>
+            </div>
+            
+            <div class="price-tag price-high">السعر: غالي جداً</div>
+            
+            <div class="doctors">
+                <h4>أبرز الأطباء</h4>
+                <div class="doctor"><strong>Prof. Wang Lei</strong> - جراح قلب، خبرة 22 سنة</div>
+                <div class="doctor"><strong>Dr. Chen Yan</strong> - أخصائي جراحة عامة، خبرة 17 سنة</div>
+            </div>
+            
+            <div class="hospital-footer">
+                المصدر: موقع المستشفى الرسمي 2023
+            </div>
+        </div>
+        
+        <!-- مستشفى 14 -->
+        <div class="hospital">
+            <div class="hospital-header">
+                <div class="hospital-name">
+                    <h2>The First Affiliated Hospital of Sun Yat-sen University</h2>
+                    <h3>المستشفى الأول التابع لجامعة صن يات سين</h3>
+                </div>
+                <div class="hospital-rating">8.5</div>
+            </div>
+            
+            <div class="hospital-details">
+                <div class="detail-box">
+                    <div class="label">المدينة</div>
+                    <div class="value">قوانغتشو</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">سنة التأسيس</div>
+                    <div class="value">1960</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">مستوى السعر</div>
+                    <div class="value">غالي</div>
+                </div>
+            </div>
+            
+            <div class="specializations">
+                <h4>التخصصات الرئيسية</h4>
+                <div class="spec-tags">
+                    <div class="spec-tag">أعصاب</div>
+                    <div class="spec-tag">باطنية</div>
+                    <div class="spec-tag">أورام</div>
+                </div>
+            </div>
+            
+            <div class="price-tag price-high">السعر: غالي</div>
+            
+            <div class="doctors">
+                <h4>أبرز الأطباء</h4>
+                <div class="doctor"><strong>Prof. Liu Fang</strong> - أستاذ طب أعصاب، خبرة 19 سنة</div>
+                <div class="doctor"><strong>Dr. Huang Wei</strong> - أخصائي أورام، خبرة 16 سنة</div>
+            </div>
+            
+            <div class="hospital-footer">
+                المصدر: تصنيف فودان 2022
+            </div>
+        </div>
+        
+        <!-- مستشفى 15 -->
+        <div class="hospital">
+            <div class="hospital-header">
+                <div class="hospital-name">
+                    <h2>Xiangya Hospital</h2>
+                    <h3>مستشفى شيانغيا</h3>
+                </div>
+                <div class="hospital-rating">8.0</div>
+            </div>
+            
+            <div class="hospital-details">
+                <div class="detail-box">
+                    <div class="label">المدينة</div>
+                    <div class="value">تشانغشا</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">سنة التأسيس</div>
+                    <div class="value">1906</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">مستوى السعر</div>
+                    <div class="value">متوسط</div>
+                </div>
+            </div>
+            
+            <div class="specializations">
+                <h4>التخصصات الرئيسية</h4>
+                <div class="spec-tags">
+                    <div class="spec-tag">باطنية</div>
+                    <div class="spec-tag">روماتيزم</div>
+                    <div class="spec-tag">أعصاب</div>
+                </div>
+            </div>
+            
+            <div class="price-tag price-medium">السعر: متوسط</div>
+            
+            <div class="doctors">
+                <h4>أبرز الأطباء</h4>
+                <div class="doctor"><strong>Prof. Zhang Hua</strong> - أستاذ أمراض الروماتيزم، خبرة 20 سنة</div>
+                <div class="doctor"><strong>Dr. Li Jian</strong> - أخصائي طب أعصاب، خبرة 18 سنة</div>
+            </div>
+            
+            <div class="hospital-footer">
+                المصدر: تصنيف شنغهاي 2023
+            </div>
+        </div>
+        
+        <!-- مستشفى 16 -->
+        <div class="hospital">
+            <div class="hospital-header">
+                <div class="hospital-name">
+                    <h2>West China Hospital</h2>
+                    <h3>مستشفى غرب الصين</h3>
+                </div>
+                <div class="hospital-rating">9.2</div>
+            </div>
+            
+            <div class="hospital-details">
+                <div class="detail-box">
+                    <div class="label">المدينة</div>
+                    <div class="value">تشنغدو</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">سنة التأسيس</div>
+                    <div class="value">1892</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">مستوى السعر</div>
+                    <div class="value">غالي جداً</div>
+                </div>
+            </div>
+            
+            <div class="specializations">
+                <h4>التخصصات الرئيسية</h4>
+                <div class="spec-tags">
+                    <div class="spec-tag">جراحة</div>
+                    <div class="spec-tag">باطنية</div>
+                    <div class="spec-tag">أعصاب</div>
+                </div>
+            </div>
+            
+            <div class="price-tag price-high">السعر: غالي جداً</div>
+            
+            <div class="doctors">
+                <h4>أبرز الأطباء</h4>
+                <div class="doctor"><strong>Prof. Wang Jian</strong> - جراح عام، خبرة 25 سنة</div>
+                <div class="doctor"><strong>Dr. Zhao Min</strong> - أخصائية أعصاب، خبرة 20 سنة</div>
+            </div>
+            
+            <div class="hospital-footer">
+                المصدر: تصنيف شنغهاي 2023
+            </div>
+        </div>
+        
+        <!-- مستشفى 17 -->
+        <div class="hospital">
+            <div class="hospital-header">
+                <div class="hospital-name">
+                    <h2>Peking University Third Hospital</h2>
+                    <h3>المستشفى الثالث لجامعة بكين</h3>
+                </div>
+                <div class="hospital-rating">8.8</div>
+            </div>
+            
+            <div class="hospital-details">
+                <div class="detail-box">
+                    <div class="label">المدينة</div>
+                    <div class="value">بكين</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">سنة التأسيس</div>
+                    <div class="value">1958</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">مستوى السعر</div>
+                    <div class="value">غالي</div>
+                </div>
+            </div>
+            
+            <div class="specializations">
+                <h4>التخصصات الرئيسية</h4>
+                <div class="spec-tags">
+                    <div class="spec-tag">أورام</div>
+                    <div class="spec-tag">باطنية</div>
+                    <div class="spec-tag">روماتيزم</div>
+                </div>
+            </div>
+            
+            <div class="price-tag price-high">السعر: غالي</div>
+            
+            <div class="doctors">
+                <h4>أبرز الأطباء</h4>
+                <div class="doctor"><strong>Prof. Li Wei</strong> - أستاذ طب أورام، خبرة 21 سنة</div>
+                <div class="doctor"><strong>Dr. Chen Hui</strong> - أخصائي روماتيزم، خبرة 18 سنة</div>
+            </div>
+            
+            <div class="hospital-footer">
+                المصدر: موقع المستشفى الرسمي 2023
+            </div>
+        </div>
+        
+        <!-- مستشفى 18 -->
+        <div class="hospital">
+            <div class="hospital-header">
+                <div class="hospital-name">
+                    <h2>Tongji Hospital</h2>
+                    <h3>مستشفى تونجي</h3>
+                </div>
+                <div class="hospital-rating">8.3</div>
+            </div>
+            
+            <div class="hospital-details">
+                <div class="detail-box">
+                    <div class="label">المدينة</div>
+                    <div class="value">ووهان</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">سنة التأسيس</div>
+                    <div class="value">1900</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">مستوى السعر</div>
+                    <div class="value">متوسط</div>
+                </div>
+            </div>
+            
+            <div class="specializations">
+                <h4>التخصصات الرئيسية</h4>
+                <div class="spec-tags">
+                    <div class="spec-tag">باطنية</div>
+                    <div class="spec-tag">جراحة</div>
+                    <div class="spec-tag">روماتيزم</div>
+                </div>
+            </div>
+            
+            <div class="price-tag price-medium">السعر: متوسط</div>
+            
+            <div class="doctors">
+                <h4>أبرز الأطباء</h4>
+                <div class="doctor"><strong>Prof. Zhang Li</strong> - أستاذ جراحة عامة، خبرة 19 سنة</div>
+                <div class="doctor"><strong>Dr. Wang Fang</strong> - أخصائي روماتيزم، خبرة 16 سنة</div>
+            </div>
+            
+            <div class="hospital-footer">
+                المصدر: تصنيف ووهان 2023
+            </div>
+        </div>
+        
+        <!-- مستشفى 19 -->
+        <div class="hospital">
+            <div class="hospital-header">
+                <div class="hospital-name">
+                    <h2>Xijing Hospital</h2>
+                    <h3>مستشفى شيجينغ</h3>
+                </div>
+                <div class="hospital-rating">7.8</div>
+            </div>
+            
+            <div class="hospital-details">
+                <div class="detail-box">
+                    <div class="label">المدينة</div>
+                    <div class="value">شيآن</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">سنة التأسيس</div>
+                    <div class="value">1939</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">مستوى السعر</div>
+                    <div class="value">اقتصادي</div>
+                </div>
+            </div>
+            
+            <div class="specializations">
+                <h4>التخصصات الرئيسية</h4>
+                <div class="spec-tags">
+                    <div class="spec-tag">أعصاب</div>
+                    <div class="spec-tag">جراحة</div>
+                    <div class="spec-tag">باطنية</div>
+                </div>
+            </div>
+            
+            <div class="price-tag price-low">السعر: اقتصادي</div>
+            
+            <div class="doctors">
+                <h4>أبرز الأطباء</h4>
+                <div class="doctor"><strong>Prof. Liu Jian</strong> - جراح أعصاب، خبرة 15 سنة</div>
+                <div class="doctor"><strong>Dr. Zhao Qiang</strong> - أخصائي باطنة، خبرة 17 سنة</div>
+            </div>
+            
+            <div class="hospital-footer">
+                المصدر: تصنيف المستشفيات الصينية 2022
+            </div>
+        </div>
+        
+        <!-- مستشفى 20 -->
+        <div class="hospital">
+            <div class="hospital-header">
+                <div class="hospital-name">
+                    <h2>The First Affiliated Hospital of Zhejiang University</h2>
+                    <h3>المستشفى الأول الجامعي بجامعة تشجيانغ</h3>
+                </div>
+                <div class="hospital-rating">9.5</div>
+            </div>
+            
+            <div class="hospital-details">
+                <div class="detail-box">
+                    <div class="label">المدينة</div>
+                    <div class="value">هانغتشو</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">سنة التأسيس</div>
+                    <div class="value">1952</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">مستوى السعر</div>
+                    <div class="value">غالي جداً</div>
+                </div>
+            </div>
+            
+            <div class="specializations">
+                <h4>التخصصات الرئيسية</h4>
+                <div class="spec-tags">
+                    <div class="spec-tag">جراحة</div>
+                    <div class="spec-tag">أورام</div>
+                    <div class="spec-tag">باطنية</div>
+                </div>
+            </div>
+            
+            <div class="price-tag price-high">السعر: غالي جداً</div>
+            
+            <div class="doctors">
+                <h4>أبرز الأطباء</h4>
+                <div class="doctor"><strong>Prof. Chen Ming</strong> - جراح أورام، خبرة 28 سنة</div>
+                <div class="doctor"><strong>Dr. Wang Lei</strong> - أخصائي باطنة، خبرة 22 سنة</div>
+            </div>
+            
+            <div class="hospital-footer">
+                المصدر: تصنيف شانغهاي 2024
+            </div>
+        </div>
+        
+        <!-- مستشفى 21 -->
+        <div class="hospital">
+            <div class="hospital-header">
+                <div class="hospital-name">
+                    <h2>Beijing University First Hospital</h2>
+                    <h3>مستشفى جامعة بكين الأول</h3>
+                </div>
+                <div class="hospital-rating">8.5</div>
+            </div>
+            
+            <div class="hospital-details">
+                <div class="detail-box">
+                    <div class="label">المدينة</div>
+                    <div class="value">بكين</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">سنة التأسيس</div>
+                    <div class="value">1918</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">مستوى السعر</div>
+                    <div class="value">غالي جداً</div>
+                </div>
+            </div>
+            
+            <div class="specializations">
+                <h4>التخصصات الرئيسية</h4>
+                <div class="spec-tags">
+                    <div class="spec-tag">زراعة أعضاء</div>
+                    <div class="spec-tag">روماتيزم</div>
+                </div>
+            </div>
+            
+            <div class="price-tag price-high">السعر: غالي جداً</div>
+            
+            <div class="doctors">
+                <h4>أبرز الأطباء</h4>
+                <div class="doctor"><strong>Prof. Zhang Lei</strong> - خبير زراعة أعضاء، أكثر من 900 عملية زرع كلى وكبد</div>
+                <div class="doctor"><strong>Prof. Chen Mei</strong> - أخصائي روماتيزم معروف بأبحاثه السريرية</div>
+            </div>
+            
+            <div class="hospital-footer">
+                المصدر: BU First Organ Center 2024
+            </div>
+        </div>
+        
+        <!-- مستشفى 22 -->
+        <div class="hospital">
+            <div class="hospital-header">
+                <div class="hospital-name">
+                    <h2>Zhejiang Cancer Hospital</h2>
+                    <h3>مستشفى تشجيانغ للسرطان</h3>
+                </div>
+                <div class="hospital-rating">8.0</div>
+            </div>
+            
+            <div class="hospital-details">
+                <div class="detail-box">
+                    <div class="label">المدينة</div>
+                    <div class="value">هانغتشو</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">سنة التأسيس</div>
+                    <div class="value">1963</div>
+                </div>
+                <div class="detail-box">
+                    <div class="label">مستوى السعر</div>
+                    <div class="value">متوسط</div>
+                </div>
+            </div>
+            
+            <div class="specializations">
+                <h4>التخصصات الرئيسية</h4>
+                <div class="spec-tags">
+                    <div class="spec-tag">أورام</div>
+                    <div class="spec-tag">رئة</div>
+                </div>
+            </div>
+            
+            <div class="price-tag price-medium">السعر: متوسط</div>
+            
+            <div class="doctors">
+                <h4>أبرز الأطباء</h4>
+                <div class="doctor"><strong>Prof. Wu Jie</strong> - خبير علاج الأورام الرئوية، خبرة 20 سنة</div>
+                <div class="doctor"><strong>Prof. Zhang Ming</strong> - أستاذ جراحة الأورام، متخصص في جراحات الصدر</div>
+            </div>
+            
+            <div class="hospital-footer">
+                المصدر: Zhejiang Cancer Centre 2024
+            </div>
+        </div>
+        
+    </div>
+</body>
+</html>
